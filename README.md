@@ -1,1 +1,0 @@
-# IFOA_WG_Capital_Models
