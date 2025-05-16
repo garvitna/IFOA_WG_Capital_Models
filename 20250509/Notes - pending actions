@@ -1,0 +1,13 @@
+#pending actions
+1)  inputs
+- adjust for online resources where applicable (AON and LCP analysis)
+-add source links/reference to what was used to calibrate parameters
+2)Methodology:
+-ensure SCR is broadly equal for all models
+- ensure all marginals method calcs are the same between copulas and risk drivers (Cat risk covered in both, market risk in both)
+- set up hybrid model (copulas without inflation)
+
+3) outputs 
+- set up comparison outputs (% difference etc)
+diversification metric
+-1 in 10 and earlier return periods
