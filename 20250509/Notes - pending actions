@@ -1,11 +1,15 @@
 #pending actions
 1)  inputs
-- adjust for online resources where applicable (AON and LCP analysis)
+- adjust for online resources where applicable (AON and LCP analysis) - GN parameters
 -add source links/reference to what was used to calibrate parameters
+- update starting assets to 7-8bn
+- set up YELTs for Cat risk
 2)Methodology:
 -ensure SCR is broadly equal for all models
-- ensure all marginals method calcs are the same between copulas and risk drivers (Cat risk covered in both, market risk in both)
+- ensure all marginals method calcs are the same between copulas and risk drivers (cover market risk in both)
 - set up hybrid model (copulas without inflation)
+- adjust reserve risk calculation to use market standard approach
+- YELTs to use for cat risk
 
 3) outputs 
 - set up comparison outputs (% difference etc)
