@@ -16,4 +16,7 @@
 diversification metric
 -1 in 10 and earlier return periods (for all risks)
 - label plots and charts
-- correct issue with show cdf function
+
+
+4) Model code clean up:
+- correct issue with show cdf function issue with titles - refresh in version 2 
