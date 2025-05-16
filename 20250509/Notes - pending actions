@@ -8,7 +8,7 @@
 -ensure SCR is broadly equal for all models
 - ensure all marginals method calcs are the same between copulas and risk drivers (cover market risk in both)
 - set up hybrid model (copulas without inflation)
-- adjust reserve risk calculation to use market standard approach
+- adjust reserve risk calculation to use market standard approach (base run off, incurred, paid)
 - YELTs to use for cat risk
 
 3) outputs 
