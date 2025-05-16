@@ -10,6 +10,6 @@
 3) outputs 
 - set up comparison outputs (% difference etc)
 diversification metric
--1 in 10 and earlier return periods
+-1 in 10 and earlier return periods (for all risks)
 - label plots and charts
 - correct issue with show cdf function
