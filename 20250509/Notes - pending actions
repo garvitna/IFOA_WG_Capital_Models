@@ -1,22 +1,22 @@
 #pending actions
 1)  inputs
-- adjust for online resources where applicable (AON and LCP analysis) - GN parameters
--add source links/reference to what was used to calibrate parameters
-- update starting assets to 7-8bn
-- set up YELTs for Cat risk
+- adjust for online resources where applicable (AON and LCP analysis) - GN parameters - DONE (REVIEW PENDING WITH AC) 
+-add source links/reference to what was used to calibrate parameters - DONE (REVIEW PENDING WITH AC)
+- update starting assets to 7-8bn - WILL UPDATED AFTER AC REVIEWS INSURANCE RISK PARAMETERS 
+- set up YELTs for Cat risk - PENDING
 2)Methodology:
--ensure SCR is broadly equal for all models
-- ensure all marginals method calcs are the same between copulas and risk drivers (cover market risk in both)
-- set up hybrid model (copulas without inflation)
-- adjust reserve risk calculation to use market standard approach (base run off, incurred, paid)
-- YELTs to use for cat risk
+-ensure SCR is broadly equal for all models - WILL UPDATED AFTER AC REVIEWS INSURANCE RISK PARAMETERS
+- ensure all marginals method calcs are the same between copulas and risk drivers (cover market risk in both) - DONE
+- set up hybrid model (copulas without inflation) - DONE
+- adjust reserve risk calculation to use market standard approach (base run off, incurred, paid) - DONE
+- YELTs to use for cat risk - PENDING
 
 3) outputs 
-- set up comparison outputs (% difference etc)
-diversification metric
--1 in 10 and earlier return periods (for all risks)
-- label plots and charts
+- set up comparison outputs (% difference etc) - WE HAVE SEPARATE OUTPUT FILES FROM EACH MODEL. TO DISCUSS IF WE HAVE TO USE THEM TO CREATE A NEW COMPARISON MODEL
+diversification metric - AC TO REVIEW
+-1 in 10 and earlier return periods (for all risks) - VAR AND TVAR ALREADY PUBLISHED FOR 90TH PERCENTILE
+- label plots and charts - CDFs HAVE BEEN LABELLED
 
 
 4) Model code clean up:
-- correct issue with show cdf function issue with titles - refresh in version 2 
+- correct issue with show cdf function issue with titles - refresh in version 2 - THIS IS WORKING AFTER CORRECTION IN STOCHASTIC SCALER PCM MODULE
