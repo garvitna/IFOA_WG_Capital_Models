@@ -20,3 +20,5 @@
 
 4) Model code clean up:
 - correct issue with show cdf function issue with titles - refresh in version 2 - THIS IS WORKING AFTER CORRECTION IN STOCHASTIC SCALER PCM MODULE
+
+5) Validation
