@@ -4,21 +4,39 @@
 -add source links/reference to what was used to calibrate parameters - DONE (REVIEW PENDING WITH AC - DONE)
 - update starting assets to 7-8bn - WILL UPDATED AFTER AC REVIEWS INSURANCE RISK PARAMETERS 
 - set up YELTs for Cat risk - DONE (REVIEW PENDING WITH AC)
+- Reserve risk parameters to be adjusted (lognormal)
+
+
 2)Methodology:
 -ensure SCR is broadly equal for all models - WILL UPDATED AFTER AC REVIEWS INSURANCE RISK PARAMETERS
 - ensure all marginals method calcs are the same between copulas and risk drivers (cover market risk in both) - DONE
 - set up hybrid model (copulas without inflation) - DONE
 - adjust reserve risk calculation to use market standard approach (base run off, incurred, paid) - DONE
-- YELTs to use for cat risk - DONE (REVIEW PENDING WITH AC)
+- YELTs to use for cat risk - DONE (REVIEW PENDING WITH AC) - DONE
+- Economic risk driver should apply to UW risk and not Reserve risk
+- Market risk needs to include Credit spread risk need
 
 3) outputs 
-- set up comparison outputs (% difference etc) - DONE
+- set up comparison outputs (% difference etc) - DONE (adjust so that this is produced as an output in excel format)
 - diversification metric - AC TO REVIEW
 -1 in 10 and earlier return periods (for all risks) - VAR AND TVAR ALREADY PUBLISHED FOR 90TH PERCENTILE
-- label plots and charts - CDFs HAVE BEEN LABELLED
+- label plots and charts - CDFs HAVE BEEN LABELLED - DONE
 
 
 4) Model code clean up:
 - correct issue with show cdf function issue with titles - refresh in version 2 - THIS IS WORKING AFTER CORRECTION IN STOCHASTIC SCALER PCM MODULE
 
-5) Validation
+
+5) Validation:
+- clean up methodology and code (JN)
+
+6) Working paper (Egress):
+- paste the reuslts in the modelling section
+- set out the practical steps to access and run the model (pcm packages, scripts, excel outputs etc.,)
+- explain the approach (E.g., three models copulas, hybrid, drivers - aim to show the difference in modelling, keep results consistent across all, use similar inputs, model medium/large size specialty insurer, add disclaimer for results/illustration purposes only)
+- high level comment on results
+
+Pending actions:
+- share results with the group (week com 3th June)
+- adjust the models in light of any  group feedback
+- fill in the working paper for the model work
