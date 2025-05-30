@@ -5,6 +5,7 @@
 - update starting assets to 7-8bn - WILL UPDATED AFTER AC REVIEWS INSURANCE RISK PARAMETERS 
 - set up YELTs for Cat risk - DONE (REVIEW PENDING WITH AC)
 - Reserve risk parameters to be adjusted (lognormal)
+- Increase the copula input parameters to get a similar Capital figure
 
 
 2)Methodology:
@@ -21,6 +22,8 @@
 - diversification metric - AC TO REVIEW
 -1 in 10 and earlier return periods (for all risks) - VAR AND TVAR ALREADY PUBLISHED FOR 90TH PERCENTILE
 - label plots and charts - CDFs HAVE BEEN LABELLED - DONE
+- Ensure SCR to premium ratio is reasonable - i.e., would expect SCR=2bn for a 5-6bn premium company (Add this ratio to the MI produced)
+- show comparison of individual risks for each model - e.g., reserve risk, large claims and all the granular (for drivers models would be good to show pre and post drivers, i.e., pre inflation and post inflation large claims)
 
 
 4) Model code clean up:
@@ -29,6 +32,9 @@
 
 5) Validation:
 - clean up methodology and code (JN)
+- once the model is finalised:
+  - check the contribution to SCR from each major risk to ensure that is reasonable (Expectation is total UW and reserve risk would make up most of SCR - c80% (35% reserve and 45% UW risk)  the rest would be split in ops, market and credit risk)
+  - review the JEPs 
 
 6) Working paper (Egress):
 - paste the reuslts in the modelling section
