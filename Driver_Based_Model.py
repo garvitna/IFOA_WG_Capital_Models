@@ -320,7 +320,7 @@ market_risk_init: StochasticScalar = -investment_income_by_risk_type.sum()
 # Applying Economic Cycle and Currency Exchange to Market Risk
 
 market_risk = market_risk_init * np.where(
-    economic_cycle_changes.values > Market_Impact_EC_Threshold, Market_Impact_EC[1], Market_Impact_EC[0]
+    economic_cycle_changes.values < Market_Impact_EC_Threshold, Market_Impact_EC[1], Market_Impact_EC[0]
 )
 
 
@@ -354,7 +354,7 @@ credit_risk_UC = credit_risk * np.where(
 
 # Applying Economic Cycle to Credit Risk
 credit_risk_EC = credit_risk_UC * np.where(
-    economic_cycle_changes.values > Credit_Impact_EC_Threshold, Credit_Impact_EC[1], Credit_Impact_EC[0]
+    economic_cycle_changes.values < Credit_Impact_EC_Threshold, Credit_Impact_EC[1], Credit_Impact_EC[0]
 )
 # Applying CAT Losses to Credit Risk
 credit_risk = credit_risk_EC * np.where(
@@ -372,7 +372,7 @@ operational_risk_UC = operational_risk_formula * np.where(
 
 # Applying Economic Cycle to Operational Risk
 operational_risk_EC = operational_risk_UC * np.where(
-    economic_cycle_changes.values > Operational_Impact_EC_Threshold, Operational_Impact_EC[1], Operational_Impact_EC[0]
+    economic_cycle_changes.values < Operational_Impact_EC_Threshold, Operational_Impact_EC[1], Operational_Impact_EC[0]
 )
 
 # Applying CAT Losses to Operational Risk
