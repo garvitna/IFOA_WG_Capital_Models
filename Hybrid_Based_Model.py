@@ -135,14 +135,14 @@ for lob in lobs:
 non_cat_underwriting_losses_by_lob = aggregate_large_losses_by_lob + attritional_losses_by_lob
 
 # correlate the non-cat losses of various LoBs. Use a copula to do this
-copulas.StudentsTCopula(correlation_matrix, len(lobs)).apply(non_cat_underwriting_losses_by_lob)
+copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(non_cat_underwriting_losses_by_lob)
 total_uw_losses_by_lob = non_cat_underwriting_losses_by_lob + aggregate_cat_losses_by_lob
 total_uw_losses: StochasticScalar = total_uw_losses_by_lob.sum()
 # reserve risk
 # Generate the ultimate reserves before inflation
 future_ultimate_reserves_by_lob = generate_reserve_risk(reserve_params_mean, reserve_params_sigma, Payment_Pattern)
 # apply copula to the uninflated future ultimate reserves between the lobs
-copulas.StudentsTCopula(correlation_matrix, len(lobs)).apply(future_ultimate_reserves_by_lob)
+copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(future_ultimate_reserves_by_lob)
 
 # apply correlation between underwriting and reserve risks
 copulas.GumbelCopula(Risk_Aggregation_Theta, 2).apply([total_uw_losses, future_ultimate_reserves_by_lob.sum()])

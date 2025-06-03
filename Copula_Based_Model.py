@@ -121,7 +121,7 @@ for lob in lobs:
 non_cat_underwriting_losses_by_lob = aggregate_large_losses_by_lob + attritional_losses_by_lob
 
 # correlate the non-cat losses of various LoBs. Use a copula to do this
-copulas.StudentsTCopula(correlation_matrix, len(lobs)).apply(non_cat_underwriting_losses_by_lob)
+copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(non_cat_underwriting_losses_by_lob)
 gross_underwriting_loss_by_lob = non_cat_underwriting_losses_by_lob + aggregate_cat_losses_by_lob
 
 # Netting down the losses
@@ -174,7 +174,7 @@ total_ceded_losses: StochasticScalar = total_gross_losses - total_net_losses
 
 future_ultimate_reserves_by_lob = generate_reserve_risk(reserve_params_mean, reserve_params_sigma, Payment_Pattern)
 reserve_risk_by_lob = future_ultimate_reserves_by_lob - future_ultimate_reserves_by_lob.mean()
-copulas.StudentsTCopula(correlation_matrix, len(lobs)).apply(reserve_risk_by_lob)
+copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(reserve_risk_by_lob)
 reserve_risk: StochasticScalar = reserve_risk_by_lob.sum()
 
 
