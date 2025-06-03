@@ -1,3 +1,4 @@
+import pal
 from pal import config, distributions
 from pal.frequency_severity import FrequencySeverityModel
 from pal.variables import ProteusVariable
@@ -13,7 +14,8 @@ from reserves import generate_reserve_risk
 from operational_risk import generate_operational_risk
 from analysis import produce_analysis
 
-config.n_sims = 10000  # Set the number of simulations
+pal.config.n_sims = 10000
+pal.set_random_seed(13892911)
 
 file_path = "Driver_Based_Model.xlsx"
 

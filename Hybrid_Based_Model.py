@@ -1,6 +1,6 @@
-from pal import config, distributions
+import pal
+from pal import distributions, copulas
 from pal.frequency_severity import FrequencySeverityModel
-from pal import copulas
 from pal.variables import ProteusVariable
 from pal.stochastic_scalar import StochasticScalar
 import plotly.graph_objects as go  # noqa
@@ -14,7 +14,8 @@ from reserves import generate_reserve_risk
 from operational_risk import generate_operational_risk
 from analysis import produce_analysis
 
-config.n_sims = 10000  # Set the number of simulations
+pal.config.n_sims = 10000
+pal.set_random_seed(13892911)
 
 file_path = "Hybrid_Based_Model.xlsx"
 
@@ -254,7 +255,7 @@ market_risk: StochasticScalar = -investment_income_by_risk_type.sum()
 reinsurer_names = credit_params["reinsurer_rating"].keys()
 
 gross_cat_losses: StochasticScalar = aggregate_cat_losses_by_lob.sum()
-credit_risk: StochasticScalar = StochasticScalar(np.zeros(config.n_sims))
+credit_risk: StochasticScalar = StochasticScalar(np.zeros(pal.config.n_sims))
 for reinsurer in reinsurer_names:
     reinsurer_uniform = distributions.Uniform(0, 1).generate()
     copulas.ClaytonCopula(credit_params["cat_copula_parameter"]["theta"], n=2).apply(

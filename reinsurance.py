@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pal.variables import ProteusVariable
 from pal.frequency_severity import FreqSevSims
+from pal.contracts import XoL, XoLTower
 
 
 def apply_quota_share(losses_by_lob: ProteusVariable, quota_share_cession: pd.Series):
@@ -58,15 +59,19 @@ def apply_reinsurance(
     net_qs_individual_large_losses_by_lob = individual_large_losses_by_lob - qs_ceded_individual_large_losses_by_lob
     net_qs_individual_cat_losses_by_lob = individual_cat_losses_by_lob - qs_ceded_individual_cat_losses_by_lob
     # Apply the XoL to the individual large losses
+    # set up XoL contract
+    large_xol = {
+        lob: XoL(
+            name=lob,
+            limit=Large_XoL_Limit[lob],
+            excess=Large_XoL_Retention[lob],
+            premium=0.0,  # Premium is not used in this calculation
+        )
+        for lob in Large_XoL_Retention.index
+    }
     xl_ceded_individual_large_losses_by_lob = ProteusVariable(
         "lob",
-        {
-            lob: np.minimum(
-                np.maximum(net_qs_individual_large_losses_by_lob[lob] - Large_XoL_Retention[lob], 0),
-                Large_XoL_Limit[lob],
-            )
-            for lob in net_qs_individual_large_losses_by_lob.values.keys()
-        },
+        {lob: large_xol[lob].apply(net_qs_individual_large_losses_by_lob[lob]).recoveries for lob in large_xol.keys()},
     )
     total_ceded_individual_large_losses_by_lob = (
         qs_ceded_individual_large_losses_by_lob + xl_ceded_individual_large_losses_by_lob
@@ -75,13 +80,15 @@ def apply_reinsurance(
     net_qs_total_cat_event_losses: FreqSevSims = net_qs_individual_cat_losses_by_lob.sum()
     # cat program
     cat_layers = CAT_XoL_Retention.index
-    xl_ceded_cat_event_losses_by_lob = 0.0
-    for layer in cat_layers:
-        xl_ceded_cat_event_losses = np.minimum(
-            np.maximum(net_qs_total_cat_event_losses - CAT_XoL_Retention[layer], 0), CAT_XoL_Limit[layer]
-        )
-        xl_cat_recovery_ratio = xl_ceded_cat_event_losses / net_qs_total_cat_event_losses
-        xl_ceded_cat_event_losses_by_lob += net_qs_individual_cat_losses_by_lob * xl_cat_recovery_ratio
+    cat_xol_tower = XoLTower(
+        CAT_XoL_Limit.values,
+        CAT_XoL_Retention.values,
+        premium=[0 for _ in cat_layers],  # Premium is not used in this calculation
+        name=cat_layers,
+    )
+    xl_ceded_cat_event_losses = cat_xol_tower.apply(net_qs_total_cat_event_losses).recoveries
+    xl_cat_recovery_ratio = xl_ceded_cat_event_losses / net_qs_total_cat_event_losses
+    xl_ceded_cat_event_losses_by_lob = net_qs_individual_cat_losses_by_lob * xl_cat_recovery_ratio
     total_ceded_individual_cat_losses_by_lob = qs_ceded_individual_cat_losses_by_lob + xl_ceded_cat_event_losses_by_lob
 
     return ProteusVariable(
