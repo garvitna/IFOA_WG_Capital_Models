@@ -81,7 +81,7 @@ def apply_reinsurance(
             np.maximum(net_qs_total_cat_event_losses - CAT_XoL_Retention[layer], 0), CAT_XoL_Limit[layer]
         )
         xl_cat_recovery_ratio = xl_ceded_cat_event_losses / net_qs_total_cat_event_losses
-        xl_ceded_cat_event_losses_by_lob += xl_ceded_cat_event_losses * xl_cat_recovery_ratio
+        xl_ceded_cat_event_losses_by_lob += net_qs_individual_cat_losses_by_lob * xl_cat_recovery_ratio
     total_ceded_individual_cat_losses_by_lob = qs_ceded_individual_cat_losses_by_lob + xl_ceded_cat_event_losses_by_lob
 
     return ProteusVariable(
