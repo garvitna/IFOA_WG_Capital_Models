@@ -49,4 +49,7 @@ Pending actions:
 - Methodology issues
     -large and attritional losses quite material
     - lack of dependency in drivers model
+    - TVAR calculation for drivers model doesn't add up (i.e., reserve+UW +..  is not equal to combined)
 - Review parameters to ensure consistency across risk areas and benchmarking
+- Code clean up/ merge and make efficient where possible (inputs that are the same for all models could go in the same s/sheet)
+- Adjust comparison script to produce all plots and tables needed for the paper (currently some of the visuals are not exported in excel, also missing the contribution to capital figures)
