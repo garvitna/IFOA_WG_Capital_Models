@@ -289,20 +289,21 @@ inflated_reserve_payments_by_lob = ProteusVariable(
         for lob in lobs
     },
 )
-inflated_reserve_risk_by_lob = inflated_reserve_payments_by_lob - inflated_reserve_payments_by_lob.mean()
 
 # apply Market Drivers to Reserve Risk
-updated_reserve_risk_by_lob = ProteusVariable(
+updated_reserve_payments_by_lob = ProteusVariable(
     "lob",
     {
         lob: (
-            inflated_reserve_risk_by_lob[lob]
+            inflated_reserve_payments_by_lob[lob]
             * (1 + economic_cycle_changes * Economic_Cycle_Class_Impact[lob])
             * (1 + (underwriting_cycle * Underwriting_Cycle_class_impact[lob]))
         )
         for lob in lobs
     },
 )
+
+updated_reserve_risk_by_lob = updated_reserve_payments_by_lob - updated_reserve_payments_by_lob.mean()
 
 reserve_risk: StochasticScalar = updated_reserve_risk_by_lob.sum()
 
