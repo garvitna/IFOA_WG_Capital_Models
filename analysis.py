@@ -16,8 +16,7 @@ def create_percentile_table(
     market_risk = risk_by_risk_type["Market Risk"]
     credit_risk = risk_by_risk_type["Credit Risk"]
     operational_risk = risk_by_risk_type["Operational Risk"]
-    net_attritional_losses = losses_by_loss_type["Attritional"]
-    net_aggregate_large_losses = losses_by_loss_type["Large"]
+    net_non_catastrophe_losses = losses_by_loss_type["Non-Catastrophe"]
     net_aggregate_cat_losses = losses_by_loss_type["Catastrophe"]
 
     # Table of VaR and TVaR at different percentiles
@@ -33,10 +32,8 @@ def create_percentile_table(
     credit_risk_TVaR = credit_risk.tvar(percentiles)
     operational_risk_VaR = operational_risk.percentile(percentiles)
     operational_risk_TVaR = operational_risk.tvar(percentiles)
-    net_attritional_losses_VaR = net_attritional_losses.percentile(percentiles)
-    net_attritional_losses_TVaR = net_attritional_losses.tvar(percentiles)
-    net_aggregate_large_losses_VaR = net_aggregate_large_losses.percentile(percentiles)
-    net_aggregate_large_losses_TVaR = net_aggregate_large_losses.tvar(percentiles)
+    net_non_catastrophe_losses_VaR = net_non_catastrophe_losses.percentile(percentiles)
+    net_non_catastrophe_losses_TVaR = net_non_catastrophe_losses.tvar(percentiles)
     net_CAT_losses_VaR = net_aggregate_cat_losses.percentile(percentiles)
     net_CAT_losses_TVaR = net_aggregate_cat_losses.tvar(percentiles)
     percentile_data = pd.DataFrame(
@@ -54,10 +51,8 @@ def create_percentile_table(
             "Credit Risk TVaR": credit_risk_TVaR,
             "Operational Risk VaR": operational_risk_VaR,
             "Operational Risk TVaR": operational_risk_TVaR,
-            "Net Attritional Losses VaR": net_attritional_losses_VaR,
-            "Net Attritional Losses TVaR": net_attritional_losses_TVaR,
-            "Net Aggregate Large Losses VaR": net_aggregate_large_losses_VaR,
-            "Net Aggregate Large Losses TVaR": net_aggregate_large_losses_TVaR,
+            "Net Non-Catastrophe Losses VaR": net_non_catastrophe_losses_VaR,
+            "Net Non-Catastrophe Losses TVaR": net_non_catastrophe_losses_VaR,
             "Net CAT Losses VaR": net_CAT_losses_VaR,
             "Net CAT Losses TVaR": net_CAT_losses_TVaR,
         }
@@ -145,7 +140,7 @@ def export_to_excel(
     percentile_data = create_percentile_table(risk_by_risk_type, losses_by_loss_type, percentiles)
     with pd.ExcelWriter(output_filename) as writer:
         pd.DataFrame({"Selected_Percentile": [selected_percentile], "Capital": [capital_requirement]}).to_excel(
-            writer, sheet_name="Capital_Reqirement", index=False
+            writer, sheet_name="Capital_Requirement", index=False
         )
         total_risks.to_excel(writer, sheet_name="Total Risks", index=False)
         percentile_data.to_excel(writer, sheet_name="VaR and TVaR", index=False)

@@ -26,7 +26,7 @@ credit_df = pd.read_excel(file_path, sheet_name="Credit")
 operational_df = pd.read_excel(file_path, sheet_name="Operational")
 reinsurance_df = pd.read_excel(file_path, sheet_name="Reinsurance", index_col="lob")
 cat_reinsurance_df = pd.read_excel(file_path, sheet_name="Cat Reinsurance", index_col="layer")
-corr_df = pd.read_excel(file_path, sheet_name="Correlation Matrix", index_col=0)
+corr_df = pd.read_excel(file_path, sheet_name="Correlation Matrix", index_col=[0, 1], header=[0, 1])
 market_corr = pd.read_excel(file_path, sheet_name="Market_Correlation", index_col=0)
 corr_input_df = pd.read_excel(file_path, sheet_name="Correlation Inputs")
 expense_df = pd.read_excel(file_path, sheet_name="Expense Inputs")
@@ -49,17 +49,11 @@ expense_params = dict(zip(expense_df["parameter_name"], expense_df["value"]))
 # Making individual lists for each parameter
 lobs = underwriting_df.index
 net_premium = underwriting_df["Net Premium"]
-Poisson_Parameters = underwriting_df["Poisson_Parameter"]
-GDP_Shape_Parameters = underwriting_df["GDP_Shape_Parameter"]
-GDP_Scale_Parameters = underwriting_df["GDP_Scale_Parameter"]
-GDP_Loc_Parameters = underwriting_df["GDP_Loc_Parameter"]
 Gamma_Alpha_Parameters = underwriting_df["Gamma_Alpha_Parameter"]
 Gamma_Theta_Parameters = underwriting_df["Gamma_Theta_Parameter"]
 reserve_params_mean = reserve_df["Reserve_Mean"]
 reserve_params_sigma = reserve_df["Reserve_Sigma"]
 Quota_Share = reinsurance_df["Quota_Share"]
-Large_XoL_Retention = reinsurance_df["Large_XoL_Retention"]
-Large_XoL_Limit = reinsurance_df["Large_XoL_Limit"]
 CAT_XoL_Retention = cat_reinsurance_df["CAT_XoL_Retention"]
 CAT_XoL_Limit = cat_reinsurance_df["CAT_XoL_Limit"]
 correlation_matrix = corr_df.values
@@ -67,31 +61,15 @@ Losses_Aggregation_Theta = corr_inputs_params["Losses_Aggregation_Theta"]
 Risk_Aggregation_Theta = corr_inputs_params["Risk_Aggregation_Theta"]
 Expense_mu = expense_params["Expense_mu"]
 Expense_sigma = expense_params["Expense_sigma"]
-year = discount_curve["Year"]
-Yield_Curve = discount_curve["Yield_Curve"]
+
 Payment_Pattern = payment_pattern_df
 
 # Create the frequency and severity models for each class
 
 # Underwriting Risk
 
-# Generate the individual large losses by class
-individual_large_losses_by_lob = ProteusVariable(
-    dim_name="lob",
-    values={
-        lob: FrequencySeverityModel(
-            distributions.Poisson(mean=Poisson_Parameters[lob]),
-            distributions.GPD(
-                shape=GDP_Shape_Parameters[lob],
-                scale=GDP_Scale_Parameters[lob],
-                loc=GDP_Loc_Parameters[lob],
-            ),
-        ).generate()
-        for lob in lobs
-    },
-)
-# Generate the attritional losses by class
-attritional_losses_by_lob = ProteusVariable(
+# Generate the non-cat losses by class
+non_cat_underwriting_losses_by_lob = ProteusVariable(
     "lob",
     values={
         lob: distributions.Gamma(alpha=Gamma_Alpha_Parameters[lob], theta=Gamma_Theta_Parameters[lob]).generate()
@@ -99,49 +77,37 @@ attritional_losses_by_lob = ProteusVariable(
     },
 )
 
-# create the aggregate losses by lob
-aggregate_large_losses_by_lob = ProteusVariable(
-    "lob", {name: individual_large_losses_by_lob[name].aggregate() for name in lobs}
-)
 # Import the Catastrophe YELT data
 individual_cat_losses_by_lob = load_yelt("data/cat_yelt.csv", 10000)
 aggregate_cat_losses_by_lob = ProteusVariable(
     "lob", {lob: individual_cat_losses_by_lob[lob].aggregate() for lob in lobs}
 )
 
-# correlate the attritional, large losses by lob. Use a pairwise copula to do this
-for lob in lobs:
-    copulas.GumbelCopula(theta=Losses_Aggregation_Theta, n=2).apply(
-        [
-            aggregate_large_losses_by_lob[lob],
-            attritional_losses_by_lob[lob],
-        ]
-    )
+# reserve risk
 
-non_cat_underwriting_losses_by_lob = aggregate_large_losses_by_lob + attritional_losses_by_lob
+future_ultimate_reserves_by_lob = generate_reserve_risk(reserve_params_mean, reserve_params_sigma)
+reserve_risk_by_lob = future_ultimate_reserves_by_lob - future_ultimate_reserves_by_lob.mean()
+
 
 # correlate the non-cat losses of various LoBs. Use a copula to do this
-copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(non_cat_underwriting_losses_by_lob)
+copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(
+    [*non_cat_underwriting_losses_by_lob, *reserve_risk_by_lob]
+)
 gross_underwriting_loss_by_lob = non_cat_underwriting_losses_by_lob + aggregate_cat_losses_by_lob
+reserve_risk: StochasticScalar = reserve_risk_by_lob.sum()
 
 # Netting down the losses
 ceded_losses_by_loss_type_and_lob = apply_reinsurance(
-    attritional_losses_by_lob,
-    individual_large_losses_by_lob,
+    non_cat_underwriting_losses_by_lob,
     individual_cat_losses_by_lob,
     Quota_Share,
-    Large_XoL_Retention,
-    Large_XoL_Limit,
     CAT_XoL_Retention,
     CAT_XoL_Limit,
 )
-net_attritional_losses_by_lob = attritional_losses_by_lob - ceded_losses_by_loss_type_and_lob["Attritional"]
-net_individual_large_losses_by_lob = individual_large_losses_by_lob - ceded_losses_by_loss_type_and_lob["Large"]
-net_individual_cat_losses_by_lob = individual_cat_losses_by_lob - ceded_losses_by_loss_type_and_lob["Catastrophe"]
-net_aggregate_large_losses_by_lob = ProteusVariable(
-    "lob",
-    values={lob: net_individual_large_losses_by_lob[lob].aggregate() for lob in lobs},
+net_non_cat_underwriting_losses_by_lob = (
+    non_cat_underwriting_losses_by_lob - ceded_losses_by_loss_type_and_lob["Non-Catastrophe"]
 )
+net_individual_cat_losses_by_lob = individual_cat_losses_by_lob - ceded_losses_by_loss_type_and_lob["Catastrophe"]
 
 net_aggregate_cat_losses_by_lob = ProteusVariable(
     "lob", {lob: net_individual_cat_losses_by_lob[lob].aggregate() for lob in lobs}
@@ -150,18 +116,14 @@ net_aggregate_cat_losses: StochasticScalar = net_aggregate_cat_losses_by_lob.sum
 
 
 # calculate the total losses
-total_gross_losses_by_lob = aggregate_large_losses_by_lob + attritional_losses_by_lob + aggregate_cat_losses_by_lob
-total_net_losses_by_lob = (
-    net_aggregate_large_losses_by_lob + net_attritional_losses_by_lob + net_aggregate_cat_losses_by_lob
-)
+total_gross_losses_by_lob = non_cat_underwriting_losses_by_lob + aggregate_cat_losses_by_lob
+total_net_losses_by_lob = net_non_cat_underwriting_losses_by_lob + net_aggregate_cat_losses_by_lob
 
-net_aggregate_large_losses: StochasticScalar = net_aggregate_large_losses_by_lob.sum()
-net_attritional_losses: StochasticScalar = net_attritional_losses_by_lob.sum()
+net_net_non_cat_underwriting_losses: StochasticScalar = net_non_cat_underwriting_losses_by_lob.sum()
 net_losses_by_loss_type = ProteusVariable(
     "loss_type",
     {
-        "Attritional": net_attritional_losses,
-        "Large": net_aggregate_large_losses,
+        "Non-Catastrophe": net_net_non_cat_underwriting_losses,
         "Catastrophe": net_aggregate_cat_losses,
     },
 )
@@ -169,13 +131,6 @@ total_gross_losses = total_gross_losses_by_lob.sum()
 total_net_losses: StochasticScalar = net_losses_by_loss_type.sum()
 
 total_ceded_losses: StochasticScalar = total_gross_losses - total_net_losses
-
-# reserve risk
-
-future_ultimate_reserves_by_lob = generate_reserve_risk(reserve_params_mean, reserve_params_sigma, Payment_Pattern)
-reserve_risk_by_lob = future_ultimate_reserves_by_lob - future_ultimate_reserves_by_lob.mean()
-copulas.StudentsTCopula(correlation_matrix, corr_inputs_params["Class_DoF"]).apply(reserve_risk_by_lob)
-reserve_risk: StochasticScalar = reserve_risk_by_lob.sum()
 
 
 # Market Risk
@@ -219,16 +174,16 @@ operational_risk = generate_operational_risk(operational_params)
 
 # combining risk
 # did not include credit and expense risks as they are dependent on the total net losses and reserve risk
-
-copulas.GumbelCopula(Risk_Aggregation_Theta, n=4).apply([total_net_losses, reserve_risk, market_risk, operational_risk])
-
 # Expense Risk
 expense_factor = distributions.Normal(Expense_mu, Expense_sigma).generate()
 total_net_premium = net_premium.sum()
 expense_risk = expense_factor * (total_net_premium)
-
 underwriting_risk: StochasticScalar = total_net_losses + expense_risk - total_net_premium
-combined_risk: StochasticScalar = underwriting_risk + reserve_risk + market_risk + credit_risk + operational_risk
+insurance_risk: StochasticScalar = underwriting_risk + reserve_risk
+copulas.GumbelCopula(Risk_Aggregation_Theta, n=3).apply([insurance_risk, market_risk, operational_risk])
+
+
+combined_risk: StochasticScalar = insurance_risk + market_risk + credit_risk + operational_risk
 
 
 # produce analysis

@@ -22,12 +22,9 @@ def apply_quota_share(losses_by_lob: ProteusVariable, quota_share_cession: pd.Se
 
 
 def apply_reinsurance(
-    attritional_losses_by_lob: ProteusVariable,
-    individual_large_losses_by_lob: ProteusVariable,
+    non_cat_losses_by_lob: ProteusVariable,
     individual_cat_losses_by_lob: ProteusVariable,
     Quota_Share: pd.Series,
-    Large_XoL_Retention: pd.Series,
-    Large_XoL_Limit: pd.Series,
     CAT_XoL_Retention: pd.Series,
     CAT_XoL_Limit: pd.Series,
 ) -> ProteusVariable:
@@ -39,12 +36,9 @@ def apply_reinsurance(
     and a catastrophe (CAT) excess of loss program comprised of a number of layers with an event retention and limit for all LOBs.
 
     Parameters:
-        attritional_losses_by_lob: dict, attritional losses by LOB.
-        individual_large_losses_by_lob: dict, individual large losses by LOB.
-        individual_cat_losses_by_lob: dict, individual CAT losses by LOB.
+        non_cat_losses_by_lob: ProteusVariable, non_cat_losses_by_lob LOB.
+        individual_cat_losses_by_lob: ProteusVariable, individual CAT losses by LOB.
         Quota_Share: pd.Series, quota share percentages for each LOB.
-        Large_XoL_Retention: pd.Series, large excess of loss retention amounts for each LOB.
-        Large_XoL_Limit: pd.Series, large excess of loss limit amounts for each LOB.
         CAT_XoL_Retention: pd.Series, CAT excess of loss retention amount for each layer.
         CAT_XoL_Limit: pd.Series, CAT excess of loss limit amount for each layer.
 
@@ -52,30 +46,10 @@ def apply_reinsurance(
         ceded_losses_by_lob: ProteusVariable, ceded losses by LOB, structured by loss type (Attritional, Large, Catastrophe).
     """
 
-    qs_ceded_attritional_losses_by_lob = apply_quota_share(attritional_losses_by_lob, Quota_Share)
-    qs_ceded_individual_large_losses_by_lob = apply_quota_share(individual_large_losses_by_lob, Quota_Share)
+    qs_ceded_non_cat_losses_by_lob = apply_quota_share(non_cat_losses_by_lob, Quota_Share)
     qs_ceded_individual_cat_losses_by_lob = apply_quota_share(individual_cat_losses_by_lob, Quota_Share)
 
-    net_qs_individual_large_losses_by_lob = individual_large_losses_by_lob - qs_ceded_individual_large_losses_by_lob
     net_qs_individual_cat_losses_by_lob = individual_cat_losses_by_lob - qs_ceded_individual_cat_losses_by_lob
-    # Apply the XoL to the individual large losses
-    # set up XoL contract
-    large_xol = {
-        lob: XoL(
-            name=lob,
-            limit=Large_XoL_Limit[lob],
-            excess=Large_XoL_Retention[lob],
-            premium=0.0,  # Premium is not used in this calculation
-        )
-        for lob in Large_XoL_Retention.index
-    }
-    xl_ceded_individual_large_losses_by_lob = ProteusVariable(
-        "lob",
-        {lob: large_xol[lob].apply(net_qs_individual_large_losses_by_lob[lob]).recoveries for lob in large_xol.keys()},
-    )
-    total_ceded_individual_large_losses_by_lob = (
-        qs_ceded_individual_large_losses_by_lob + xl_ceded_individual_large_losses_by_lob
-    )
 
     net_qs_total_cat_event_losses: FreqSevSims = net_qs_individual_cat_losses_by_lob.sum()
     # cat program
@@ -94,8 +68,7 @@ def apply_reinsurance(
     return ProteusVariable(
         "loss_type",
         {
-            "Attritional": qs_ceded_attritional_losses_by_lob,
-            "Large": total_ceded_individual_large_losses_by_lob,
+            "Non-Catastrophe": qs_ceded_non_cat_losses_by_lob,
             "Catastrophe": total_ceded_individual_cat_losses_by_lob,
         },
     )

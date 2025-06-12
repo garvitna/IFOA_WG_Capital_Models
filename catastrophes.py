@@ -20,12 +20,12 @@ def load_yelt(filename: str, yelt_n_sims: int) -> ProteusVariable:
     Returns:
         ProteusVariable: A variable containing the catastrophe loss event simulations data structured by line of business (LOB).
     """
-    df = pd.read_csv("data/cat_yelt.csv")
+    df = pd.read_csv(filename)
     # Ensure the 'Sim' column is present and contains the simulation numbers
     if "Sim" not in df.columns:
         raise ValueError("The input file must contain a 'Sim' column with simulation numbers.")
     # upsample the cat ylts to the correct number of simulations
-    ylt_sims = 10000
+    ylt_sims = yelt_n_sims
     up_sample_factor = math.ceil(pal.config.n_sims / ylt_sims)
     sim_index = (df["Sim"].values - 1).repeat(up_sample_factor)  # Adjusting for 0-based index
     lobs = [col for col in df.columns if (col != "Sim" and col != "EventId")]
