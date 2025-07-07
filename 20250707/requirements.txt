@@ -1,0 +1,3 @@
+proteus-actuarial-library
+matplotlib
+seaborn
