@@ -1,1 +1,17 @@
+Model code:
+There are four main model py files available that can be used to run the model and compare the model outputs. This can be done in jupyter notebook or any other similar coding platform:
+The names of the files are:
+- Copula_Based_Model
+- Driver_Based_Model
+- Hybrid_Based_Model
+- Comparison
 
+Supporting files:
+The code relies on other supporting
+
+
+Model output:
+The model results outputs are saved in excel and the charts are in PNG format.
+- Copula_Based_Model_Output
+- Driver_Based_Model_Output
+- Hybrid_Based_Model_Output
