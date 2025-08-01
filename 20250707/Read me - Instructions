@@ -1,13 +1,19 @@
 Model code:
-There are four main model py files available that can be used to run the model and compare the model outputs. This can be done in jupyter notebook or any other similar coding platform:
-The names of the files are:
+There are four main model py files available that should be used to run the model and compare the model outputs. This can be done in jupyter notebook or any other similar coding platform:
+The file references for these models are:
 - Copula_Based_Model
 - Driver_Based_Model
 - Hybrid_Based_Model
 - Comparison
 
 Supporting files:
-The code relies on other supporting
+The code relies on other supporting py files that are used by all models:
+- reserves
+- market_risks
+- reinsurance
+- generate_cat_losses
+- catastrophes
+- analysis
 
 
 Model output:
