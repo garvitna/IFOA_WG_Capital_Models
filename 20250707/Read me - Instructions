@@ -1,3 +1,6 @@
+The code is saved in the following directory:
+- placeholder
+
 Model code:
 There are four main model py files available that should be used to run the model and compare the model outputs. This can be done in jupyter notebook or any other similar coding platform:
 The file references for these models are:
